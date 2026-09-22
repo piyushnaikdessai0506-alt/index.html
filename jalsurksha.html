@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Jal Suraksha — Every Drop Counts</title>
+<meta name="description" content="Jal Suraksha is an IoT water grid that tracks treated water from dam to tap, pinpoints underground leaks and illegal tapping without GPS, and hands consumers a remote shut-off valve." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------------------------------------------------------------
+   Jal Suraksha — design tokens
+   Deep Ocean Blue / Cyan data / Titanium Silver.
+   The page is a dark instrument panel by design, so the token set
+   is identical across viewer themes and never depends on one.
+----------------------------------------------------------------*/
+:root{
+  --abyss:#03080F;
+  --deep:#061B2E;
+  --deep-2:#082539;
+  --ocean:#0C3A5C;
+  --line:rgba(150,196,224,.16);
+  --line-strong:rgba(150,196,224,.32);
+  --cyan:#00E5FF;
+  --cyan-dim:#57C6DC;
+  --aqua:#7FE9E1;
+  --titanium:#C6CFD6;
+  --silver:#8FA3B3;
+  --ink:#EAF4FA;
+  --alert:#FF5C5C;
+  --warn:#FFB65C;
+  --ok:#43E08A;
+  --shell:rgba(255,255,255,.035);
+  --shell-2:rgba(255,255,255,.055);
+  --glow:0 0 40px rgba(0,229,255,.28);
+  --sans:'Inter','Helvetica Neue',Arial,sans-serif;
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+  --maxw:1240px;
+  --rail:88px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --abyss:#03080F; --ink:#EAF4FA; }
+}
+:root[data-theme="dark"]{ --abyss:#03080F; --ink:#EAF4FA; }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; -webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--abyss); color:var(--ink);
+  font-family:var(--sans); font-weight:400; line-height:1.6;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+img{max-width:100%}
+a{color:inherit}
+::selection{background:rgba(0,229,255,.28)}
+:focus-visible{outline:2px solid var(--cyan); outline-offset:3px; border-radius:4px}
+
+h1,h2,h3,h4{font-weight:600; line-height:1.08; letter-spacing:-.025em; margin:0}
+h1{font-size:clamp(2.6rem,6.4vw,5.2rem); font-weight:700; letter-spacing:-.04em}
+h2{font-size:clamp(1.9rem,3.7vw,3.1rem)}
+h3{font-size:clamp(1.15rem,1.7vw,1.5rem)}
+p{margin:0 0 1rem}
+.lede{font-size:clamp(1.02rem,1.35vw,1.2rem); color:#BDD3E2; max-width:62ch; line-height:1.65}
+.muted{color:var(--silver)}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+.wrap{width:100%; max-width:var(--maxw); margin:0 auto; padding:0 28px}
+section{position:relative}
+.band{padding:clamp(80px,11vh,140px) 0}
+.band-solid{background:var(--abyss)}
+.kicker{font-size:.82rem; color:var(--cyan-dim); letter-spacing:.02em; margin:0 0 14px; display:flex; align-items:center; gap:10px}
+.kicker::before{content:""; width:26px; height:1px; background:var(--cyan); opacity:.7; flex:none}
+
+/* ---------- nav ---------- */
+header.nav{
+  position:fixed; inset:0 0 auto 0; z-index:60; height:68px;
+  display:flex; align-items:center;
+  background:linear-gradient(to bottom,rgba(3,8,15,.92),rgba(3,8,15,0));
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  transition:background .35s ease, border-color .35s ease;
+  border-bottom:1px solid transparent;
+}
+header.nav.stuck{background:rgba(4,12,21,.88); border-bottom-color:var(--line)}
+.nav-in{display:flex; align-items:center; justify-content:space-between; gap:20px; width:100%; max-width:var(--maxw); margin:0 auto; padding:0 28px}
+.brand{display:flex; align-items:center; gap:11px; text-decoration:none; font-weight:600; letter-spacing:-.02em}
+.brand-mark{width:26px; height:26px; flex:none}
+.brand small{display:block; font-size:.62rem; font-weight:400; color:var(--silver); letter-spacing:.06em; line-height:1}
+.nav-links{display:flex; align-items:center; gap:26px}
+.nav-links a{font-size:.9rem; color:#C3D6E3; text-decoration:none; position:relative; padding:4px 0; transition:color .2s}
+.nav-links a::after{content:""; position:absolute; left:0; bottom:0; height:1px; width:0; background:var(--cyan); transition:width .28s cubic-bezier(.4,0,.2,1)}
+.nav-links a:hover{color:#fff}
+.nav-links a:hover::after,.nav-links a.active::after{width:100%}
+.nav-links a.active{color:#fff}
+.nav-cta{
+  font-size:.86rem; text-decoration:none; padding:9px 16px; border-radius:999px;
+  border:1px solid var(--line-strong); color:var(--ink); background:var(--shell);
+  transition:border-color .25s, background .25s, box-shadow .25s;
+}
+.nav-cta:hover{border-color:var(--cyan); background:rgba(0,229,255,.1); box-shadow:0 0 22px rgba(0,229,255,.2)}
+.burger{display:none; background:none; border:1px solid var(--line-strong); border-radius:8px; width:40px; height:36px; color:var(--ink); cursor:pointer}
+.burger span{display:block; width:16px; height:1.5px; background:currentColor; margin:3px auto; border-radius:2px; transition:transform .25s, opacity .2s}
+.nav.open .burger span:nth-child(1){transform:translateY(4.5px) rotate(45deg)}
+.nav.open .burger span:nth-child(2){opacity:0}
+.nav.open .burger span:nth-child(3){transform:translateY(-4.5px) rotate(-45deg)}
+
+/* ---------- kilometre rail (the signature device) ---------- */
+.rail{
+  position:fixed; left:0; top:0; bottom:0; width:var(--rail); z-index:40;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  pointer-events:none; opacity:0; transition:opacity .5s ease;
+}
+.rail.on{opacity:1}
+.rail-track{position:relative; width:2px; height:52vh; background:linear-gradient(to bottom,transparent,var(--line-strong) 12%,var(--line-strong) 88%,transparent)}
+.rail-fill{position:absolute; left:-1px; top:0; width:4px; height:0; border-radius:4px; background:linear-gradient(to bottom,var(--aqua),var(--cyan)); box-shadow:0 0 14px rgba(0,229,255,.7)}
+.rail-node{position:absolute; left:50%; transform:translate(-50%,-50%); width:7px; height:7px; border-radius:50%; background:var(--abyss); border:1px solid var(--line-strong)}
+.rail-node.past{background:var(--cyan); border-color:var(--cyan); box-shadow:0 0 10px rgba(0,229,255,.8)}
+.rail-node b{position:absolute; left:14px; top:50%; transform:translateY(-50%); font:500 .62rem/1 var(--mono); color:var(--silver); white-space:nowrap}
+.rail-node.past b{color:var(--aqua)}
+.rail-head{position:absolute; left:50%; transform:translate(-50%,-50%); width:13px; height:13px; border-radius:50%; background:var(--cyan); box-shadow:0 0 18px 4px rgba(0,229,255,.55); top:0}
+.rail-cap{font:500 .6rem/1.4 var(--mono); color:var(--silver); text-align:center; margin:12px 0 0}
+.rail-cap b{display:block; color:var(--aqua); font-size:.78rem}
+
+/* ---------- hero ---------- */
+#pipe-canvas{position:fixed; inset:0; width:100%; height:100%; z-index:0; display:block}
+.stage{position:relative; z-index:2}
+.hero{min-height:100svh; display:flex; align-items:flex-end; padding-bottom:clamp(48px,8vh,96px); padding-top:140px}
+.hero-grid{display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,.85fr); gap:clamp(28px,5vw,64px); align-items:end; width:100%}
+.hero h1 span.line{display:block; overflow:hidden}
+.hero h1 span.line i{display:block; font-style:normal; transform:translateY(102%); animation:riseUp 1.05s cubic-bezier(.19,1,.22,1) forwards}
+.hero h1 span.line:nth-child(2) i{animation-delay:.12s}
+@keyframes riseUp{to{transform:translateY(0)}}
+.hero .lede{margin-top:22px; animation:fadeUp .9s .42s both}
+@keyframes fadeUp{from{opacity:0; transform:translateY(16px)} to{opacity:1; transform:none}}
+.hero-actions{display:flex; flex-wrap:wrap; gap:14px; margin-top:32px; animation:fadeUp .9s .56s both}
+.btn{
+  display:inline-flex; align-items:center; gap:10px; text-decoration:none; cursor:pointer;
+  font-size:.95rem; font-weight:500; padding:14px 24px; border-radius:999px; border:1px solid transparent;
+  transition:transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s, background .25s, border-color .25s;
+}
+.btn-primary{background:linear-gradient(120deg,var(--cyan),#43C8F0); color:#02141C; font-weight:600; box-shadow:0 10px 34px -12px rgba(0,229,255,.75)}
+.btn-primary:hover{transform:translateY(-2px); box-shadow:0 16px 40px -12px rgba(0,229,255,.9)}
+.btn-ghost{border-color:var(--line-strong); color:var(--ink); background:var(--shell)}
+.btn-ghost:hover{border-color:var(--cyan-dim); background:var(--shell-2); transform:translateY(-2px)}
+.btn .dot{width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.8}
+
+.hero-panel{
+  border:1px solid var(--line); border-radius:16px; padding:20px; background:rgba(6,20,33,.6);
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); animation:fadeUp 1s .7s both;
+}
+.hero-panel .ph{display:flex; align-items:center; justify-content:space-between; font:500 .72rem/1 var(--mono); color:var(--silver); margin-bottom:16px}
+.live{display:inline-flex; align-items:center; gap:7px; color:var(--aqua)}
+.live i{width:6px; height:6px; border-radius:50%; background:var(--ok); animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1; box-shadow:0 0 0 0 rgba(67,224,138,.6)} 50%{opacity:.55; box-shadow:0 0 0 6px rgba(67,224,138,0)}}
+.ticker{font:400 .78rem/1.9 var(--mono); color:#A9C4D6; max-height:132px; overflow:hidden}
+.ticker div{display:flex; gap:10px}
+.ticker b{color:var(--cyan); font-weight:500; flex:none}
+.ticker .r{color:var(--alert)}
+.ticker .g{color:var(--ok)}
+.scroll-hint{position:absolute; left:50%; bottom:22px; transform:translateX(-50%); font:400 .68rem/1 var(--mono); color:var(--silver); display:flex; flex-direction:column; align-items:center; gap:8px; animation:fadeUp 1s 1.1s both}
+.scroll-hint span{width:1px; height:34px; background:linear-gradient(to bottom,var(--cyan),transparent); animation:drip 2.2s infinite}
+@keyframes drip{0%{transform:scaleY(.2); transform-origin:top; opacity:0} 40%{opacity:1} 100%{transform:scaleY(1); transform-origin:top; opacity:0}}
+
+/* ---------- counters ---------- */
+.counters{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden}
+.counter{background:rgba(5,16,27,.82); padding:28px 26px; backdrop-filter:blur(8px)}
+.counter .n{font:600 clamp(2.1rem,4.4vw,3.4rem)/1 var(--mono); letter-spacing:-.03em; color:#fff}
+.counter .n em{font-style:normal; font-size:.44em; color:var(--cyan); margin-left:6px}
+.counter .l{margin-top:10px; font-size:.9rem; color:#B6CCDC}
+.counter .s{margin-top:4px; font-size:.76rem; color:var(--silver)}
+
+/* ---------- problem / solution slider ---------- */
+.compare{position:relative; border:1px solid var(--line); border-radius:18px; overflow:hidden; background:var(--deep); aspect-ratio:16/8.4; min-height:330px; cursor:ew-resize; touch-action:none}
+.compare .layer{position:absolute; inset:0}
+.compare .layer svg{width:100%; height:100%; display:block}
+.compare .after{clip-path:inset(0 0 0 50%)}
+.cmp-handle{position:absolute; top:0; bottom:0; left:50%; width:2px; background:linear-gradient(to bottom,transparent,var(--cyan),transparent); transform:translateX(-1px); z-index:4}
+.cmp-knob{position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:46px; height:46px; border-radius:50%; background:rgba(4,14,24,.9); border:1px solid var(--cyan); display:grid; place-items:center; box-shadow:var(--glow); color:var(--cyan); font:500 .7rem/1 var(--mono)}
+.cmp-tag{position:absolute; top:18px; font:500 .74rem/1 var(--mono); padding:7px 11px; border-radius:999px; border:1px solid var(--line-strong); background:rgba(3,10,18,.78); z-index:3}
+.cmp-tag.l{left:18px; color:var(--silver)}
+.cmp-tag.r{right:18px; color:var(--aqua); border-color:rgba(0,229,255,.4)}
+
+/* ---------- section header ---------- */
+.sec-head{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.8fr); gap:clamp(20px,4vw,60px); align-items:end; margin-bottom:clamp(36px,5vw,64px)}
+.sec-head .lede{margin:0}
+
+/* ---------- junction map ---------- */
+.grid-shell{display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:26px; align-items:start}
+.map-card{border:1px solid var(--line); border-radius:18px; background:linear-gradient(180deg,rgba(8,30,48,.75),rgba(4,13,22,.75)); padding:22px 22px 14px; position:relative; overflow:hidden}
+.map-card::after{content:"absolute"; position:absolute; inset:0; background:radial-gradient(60% 80% at 50% 0%,rgba(0,229,255,.07),transparent 70%); pointer-events:none}
+.map-head{display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:baseline; margin-bottom:6px}
+.map-head h3{font-size:1.05rem}
+.map-head .mono{font-size:.74rem; color:var(--silver)}
+.route{width:100%; height:auto; display:block; overflow:visible}
+.jnode{cursor:pointer}
+.jnode circle.hit{fill:transparent}
+.jnode .ring{fill:rgba(4,14,24,.9); stroke:var(--cyan-dim); stroke-width:1.4; transition:stroke .25s, r .25s}
+.jnode .core{fill:var(--cyan-dim); transition:fill .25s, r .25s}
+.jnode:hover .ring,.jnode.sel .ring{stroke:var(--cyan)}
+.jnode:hover .core,.jnode.sel .core{fill:var(--cyan)}
+.jnode.sel .halo{opacity:1}
+.jnode .halo{opacity:0; transition:opacity .3s; fill:none; stroke:var(--cyan); stroke-width:1}
+.jnode text{font:500 .62rem/1 var(--mono); fill:var(--silver)}
+.jnode.sel text{fill:var(--aqua)}
+.seg{stroke-width:5; stroke-linecap:round; fill:none; transition:stroke-width .25s}
+.seg.ok{stroke:rgba(67,224,138,.55)}
+.seg.warn{stroke:rgba(255,182,92,.75)}
+.seg.bad{stroke:rgba(255,92,92,.85)}
+.seg.sel{stroke-width:8}
+.flowline{stroke:var(--cyan); stroke-width:2; fill:none; stroke-dasharray:6 22; opacity:.85; animation:flow 1.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-28}}
+.leakpin circle{fill:var(--alert)}
+.leakpin text{font:500 .62rem/1 var(--mono); fill:#FFB3B3}
+.readout{border:1px solid var(--line); border-radius:18px; background:rgba(6,20,33,.7); overflow:hidden}
+.readout header{padding:16px 18px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center}
+.readout header b{font-weight:600; font-size:.98rem}
+.readout header span{font:500 .68rem/1 var(--mono); color:var(--aqua); padding:5px 9px; border:1px solid rgba(0,229,255,.28); border-radius:999px}
+.sensors{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line)}
+.sensor{background:rgba(4,14,24,.9); padding:15px 16px}
+.sensor .k{font-size:.72rem; color:var(--silver)}
+.sensor .v{font:600 1.32rem/1.2 var(--mono); margin-top:5px; color:#fff; letter-spacing:-.02em}
+.sensor .v u{text-decoration:none; font-size:.56em; color:var(--silver); margin-left:3px; font-weight:400}
+.sensor.flag .v{color:var(--alert)}
+.balance{padding:16px 18px; border-top:1px solid var(--line)}
+.bal-row{display:flex; justify-content:space-between; font:500 .82rem/1.9 var(--mono)}
+.bal-row span{color:var(--silver)}
+.bal-row b{color:#fff; font-weight:500}
+.bal-row.delta b{color:var(--alert)}
+.bal-row.delta.ok b{color:var(--ok)}
+.verdict{margin:14px 18px 18px; padding:12px 14px; border-radius:12px; font-size:.85rem; line-height:1.55; border:1px solid}
+.verdict.bad{background:rgba(255,92,92,.08); border-color:rgba(255,92,92,.3); color:#FFCFCF}
+.verdict.good{background:rgba(67,224,138,.07); border-color:rgba(67,224,138,.28); color:#C4F5DB}
+.hint-row{display:flex; align-items:center; gap:8px; font:400 .72rem/1 var(--mono); color:var(--silver); margin-top:14px}
+
+/* ---------- smart ball ---------- */
+.ball-shell{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.9fr); gap:clamp(24px,4vw,56px); align-items:center}
+.ball-stage{position:relative; aspect-ratio:1/1; max-height:600px; border:1px solid var(--line); border-radius:22px; background:radial-gradient(circle at 50% 45%,rgba(0,229,255,.12),rgba(4,13,22,0) 62%),linear-gradient(180deg,rgba(8,30,48,.6),rgba(3,10,17,.6)); overflow:hidden; cursor:grab}
+.ball-stage:active{cursor:grabbing}
+#ball-canvas{position:absolute; inset:0; width:100%; height:100%}
+.hot{position:absolute; transform:translate(-50%,-50%); pointer-events:none; opacity:0; transition:opacity .3s; z-index:10;}
+.hot b{display:block; font:500 .72rem/1.35 var(--mono); color:var(--cyan); white-space:nowrap; background:rgba(3,11,19,.8); border:1px solid rgba(0,229,255,.3); padding:4px 8px; border-radius:7px}
+.ball-ctl{position:absolute; left:18px; right:18px; bottom:18px; display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; z-index:11;}
+.chip{font:500 .72rem/1 var(--mono); color:var(--ink); background:rgba(4,14,24,.86); border:1px solid var(--line-strong); padding:9px 14px; border-radius:999px; cursor:pointer; transition:border-color .25s, background .25s, color .25s}
+.chip:hover{border-color:var(--cyan-dim)}
+.chip.on{border-color:var(--cyan); color:var(--cyan); background:rgba(0,229,255,.1)}
+.parts{list-style:none; margin:26px 0 0; padding:0; border-top:1px solid var(--line)}
+.parts li{border-bottom:1px solid var(--line); padding:16px 0 16px 0; display:grid; grid-template-columns:auto 1fr; gap:14px; cursor:default; transition:padding-left .3s}
+.parts li:hover{padding-left:8px}
+.parts li .sw{width:9px; height:9px; border-radius:2px; margin-top:8px}
+.parts li b{display:block; font-weight:600; font-size:.98rem}
+.parts li p{margin:5px 0 0; font-size:.88rem; color:#A9C2D3; line-height:1.55}
+
+/* ---------- consumer app ---------- */
+.app-shell{display:grid; grid-template-columns:320px minmax(0,1fr); gap:clamp(28px,5vw,72px); align-items:center}
+.phone{
+  width:300px; height:614px; border-radius:42px; padding:11px; margin:0 auto; position:relative;
+  background:linear-gradient(160deg,#20303C,#080F17 40%,#1A2733); box-shadow:0 40px 80px -40px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.07);
+}
+.phone::before{content:""; position:absolute; top:22px; left:50%; transform:translateX(-50%); width:88px; height:22px; border-radius:999px; background:#05090E; z-index:5}
+.screen{width:100%; height:100%; border-radius:32px; background:linear-gradient(180deg,#041320,#02090F); overflow-x:hidden; overflow-y:auto; position:relative; display:flex; flex-direction:column}
+.sbar{display:flex; justify-content:space-between; padding:16px 20px 0; font:500 .66rem/1 var(--mono); color:var(--silver)}
+.scr-body{flex:1; padding:34px 20px 16px; position:relative}
+.scr{position:absolute; inset:34px 20px 16px; opacity:0; transform:translateY(10px); pointer-events:none; transition:opacity .35s, transform .35s}
+.scr.on{opacity:1; transform:none; pointer-events:auto}
+.scr h4{font-size:1.18rem; letter-spacing:-.02em; margin-bottom:4px}
+.scr .sub{font-size:.78rem; color:var(--silver); margin-bottom:18px}
+.tank{border:1px solid var(--line); border-radius:16px; padding:16px; background:rgba(255,255,255,.03)}
+.tank .row{display:flex; justify-content:space-between; align-items:baseline; font:500 .72rem/1 var(--mono); color:var(--silver)}
+.tank .big{font:600 2rem/1 var(--mono); color:#fff; letter-spacing:-.03em; margin:10px 0 12px}
+.tank .big u{text-decoration:none; font-size:.42em; color:var(--silver); margin-left:4px}
+.bar{height:7px; border-radius:6px; background:rgba(255,255,255,.08); overflow:hidden}
+.bar i{display:block; height:100%; width:62%; border-radius:6px; background:linear-gradient(90deg,var(--aqua),var(--cyan)); transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+
+/* Direct water order form & complaint form */
+.order-input{margin-top:16px; border:1px solid var(--line); border-radius:16px; padding:18px; background:rgba(255,255,255,.03); text-align:center;}
+.order-input p{margin:0 0 10px; font-size:.85rem; color:var(--silver)}
+.order-input .flex-row{display:flex; gap:10px; justify-content:center;}
+.order-input input{width:100%; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:8px; padding:8px 12px; color:var(--ink); font:400 1rem var(--sans); text-align:center;}
+.order-input button{background:var(--cyan); color:#02141C; border:none; border-radius:8px; padding:8px 16px; font-weight:600; cursor:pointer; transition:transform .2s, filter .2s;}
+.order-input button:hover{transform:translateY(-1px); filter:brightness(1.1);}
+.order-stat{margin:10px 0 0; font-size:.74rem; color:var(--aqua); min-height:1.2em;}
+
+.toggle-card{display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid var(--line); border-radius:16px; padding:15px 16px; background:rgba(255,255,255,.03)}
+.toggle-card b{font-size:.92rem}
+.toggle-card p{margin:3px 0 0; font-size:.72rem; color:var(--silver)}
+.sw-btn{width:50px; height:29px; border-radius:999px; border:1px solid var(--line-strong); background:rgba(255,255,255,.06); position:relative; cursor:pointer; flex:none; transition:background .3s, border-color .3s}
+.sw-btn i{position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%; background:var(--silver); transition:transform .3s cubic-bezier(.4,0,.2,1), background .3s}
+.sw-btn.on{background:rgba(0,229,255,.22); border-color:var(--cyan)}
+.sw-btn.on i{transform:translateX(21px); background:var(--cyan)}
+.alert-card{margin-top:16px; border:1px solid rgba(255,92,92,.45); background:rgba(255,92,92,.1); border-radius:16px; padding:15px; opacity:0; transform:translateY(8px); transition:opacity .4s, transform .4s}
+.alert-card.show{opacity:1; transform:none}
+.alert-card b{color:#FF9A9A; font-size:.9rem; display:flex; align-items:center; gap:8px}
+.alert-card b i{width:7px; height:7px; border-radius:50%; background:var(--alert); animation:pulse 1.2s infinite}
+.alert-card p{margin:7px 0 0; font-size:.76rem; color:#FFD2D2; line-height:1.5}
+.valve-btn{margin-top:14px; width:100%; border:none; border-radius:12px; padding:13px; font:600 .86rem var(--sans); background:var(--alert); color:#2A0606; cursor:pointer; transition:transform .2s, filter .25s}
+.valve-btn:hover{filter:brightness(1.08); transform:translateY(-1px)}
+.valve-btn.done{background:rgba(67,224,138,.2); color:var(--ok); border:1px solid rgba(67,224,138,.4)}
+.valve-vis{margin-top:18px; display:grid; place-items:center}
+.valve-vis svg{width:100%; max-width:210px}
+.vpipe{stroke:rgba(150,196,224,.3); stroke-width:9; fill:none; stroke-linecap:round}
+.vflow{stroke:var(--cyan); stroke-width:5; fill:none; stroke-linecap:round; stroke-dasharray:8 14; animation:flow2 .9s linear infinite; transition:opacity .4s}
+@keyframes flow2{to{stroke-dashoffset:-22}}
+.vhandle{transition:transform .6s cubic-bezier(.65,0,.35,1); transform-origin:100px 52px}
+.closed .vhandle{transform:rotate(90deg)}
+.closed .vflow{opacity:0}
+.app-tabs{display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap}
+.feat{border-top:1px solid var(--line); padding:18px 0; display:grid; grid-template-columns:auto 1fr; gap:16px}
+.feat .ix{width:34px; height:34px; border-radius:9px; border:1px solid var(--line-strong); display:grid; place-items:center; color:var(--cyan); background:var(--shell)}
+.feat b{font-size:1rem}
+.feat p{margin:5px 0 0; font-size:.9rem; color:#A9C2D3}
+
+/* ---------- dashboard ---------- */
+.dash{border:1px solid var(--line-strong); border-radius:20px; overflow:hidden; background:linear-gradient(180deg,#071B2B,#030B13)}
+.dash-top{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 18px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.02); flex-wrap:wrap}
+.dash-top .t{display:flex; align-items:center; gap:12px; font-weight:600; font-size:.94rem}
+.dash-top .t i{width:8px; height:8px; border-radius:50%; background:var(--ok); box-shadow:0 0 10px var(--ok)}
+.dash-top .meta{font:500 .7rem/1 var(--mono); color:var(--silver); display:flex; gap:16px; flex-wrap:wrap}
+.dash-grid{display:grid; grid-template-columns:repeat(12,1fr); gap:1px; background:var(--line)}
+.cell{background:rgba(4,13,22,.94); padding:18px}
+.cell h5{margin:0 0 3px; font-size:.86rem; font-weight:600; letter-spacing:-.01em}
+.cell .cap{font:400 .68rem/1.4 var(--mono); color:var(--silver); margin-bottom:12px}
+.c-8{grid-column:span 8} .c-4{grid-column:span 4} .c-6{grid-column:span 6} .c-12{grid-column:span 12}
+canvas.chart{width:100%; height:190px; display:block}
+.zone-row{display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--line)}
+.zone-row:last-child{border-bottom:none}
+.zone-row .zn{font:500 .74rem/1 var(--mono); color:#C3D6E3; width:74px; flex:none}
+.zone-row .zb{flex:1; height:6px; border-radius:4px; background:rgba(255,255,255,.07); overflow:hidden}
+.zone-row .zb i{display:block; height:100%; border-radius:4px; background:linear-gradient(90deg,var(--aqua),var(--cyan)); width:0; transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.zone-row .zv{font:500 .74rem/1 var(--mono); width:52px; text-align:right; color:#fff}
+.zone-row.flag .zb i{background:linear-gradient(90deg,var(--warn),var(--alert))}
+.zone-row.flag .zv{color:var(--warn)}
+.log{font:400 .72rem/1.95 var(--mono); color:#A9C4D6; max-height:190px; overflow:hidden}
+.log div{display:grid; grid-template-columns:62px 1fr; gap:10px}
+.log b{color:var(--cyan-dim); font-weight:400}
+
+/* ---------- impact / conclusion ---------- */
+.pill-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px}
+.pill{font:500 .78rem/1 var(--mono); color:#BCD4E2; border:1px solid var(--line); background:var(--shell); padding:10px 14px; border-radius:999px}
+.split{display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:44px}
+.card{border:1px solid var(--line); border-radius:16px; padding:24px; background:linear-gradient(180deg,rgba(8,28,45,.55),rgba(4,12,20,.55)); transition:border-color .3s, transform .3s}
+.card:hover{border-color:rgba(0,229,255,.32); transform:translateY(-3px)}
+.card b{display:block; font-size:1.02rem; font-weight:600; margin-bottom:8px}
+.card p{margin:0; font-size:.9rem; color:#A9C2D3}
+
+/* ---------- contact / footer ---------- */
+.contact{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.9fr); gap:clamp(28px,5vw,64px); align-items:start}
+.form{display:grid; gap:14px}
+.field{display:grid; gap:7px}
+.field label{font-size:.78rem; color:var(--silver)}
+.field input,.field textarea,.field select{
+  width:100%; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:11px;
+  padding:13px 14px; color:var(--ink); font:400 .92rem var(--sans); transition:border-color .25s, background .25s;
+}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none; border-color:var(--cyan); background:rgba(0,229,255,.06)}
+.field textarea{resize:vertical; min-height:108px}
+.form-note{font-size:.78rem; color:var(--silver); margin:0}
+.fstat{font:500 .8rem/1.5 var(--mono); color:var(--ok); min-height:1.2em; margin:0}
+.docs{list-style:none; margin:22px 0 0; padding:0}
+.docs li{border-bottom:1px solid var(--line)}
+.docs a{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:15px 0; text-decoration:none; color:#C9DCE8; font-size:.94rem; transition:color .25s, padding-left .25s}
+.docs a:hover{color:var(--cyan); padding-left:6px}
+.docs a span{font:400 .7rem/1 var(--mono); color:var(--silver)}
+footer{border-top:1px solid var(--line); padding:38px 0 46px; background:var(--abyss)}
+.foot{display:flex; justify-content:space-between; gap:22px; flex-wrap:wrap; align-items:center; font-size:.84rem; color:var(--silver)}
+.foot nav{display:flex; gap:20px; flex-wrap:wrap}
+.foot a{text-decoration:none; color:var(--silver); transition:color .2s}
+.foot a:hover{color:var(--cyan)}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0; transform:translateY(22px); transition:opacity .8s cubic-bezier(.19,1,.22,1), transform .8s cubic-bezier(.19,1,.22,1)}
+.rv.in{opacity:1; transform:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:1180px){
+  :root{--rail:0px}
+  .rail{display:none}
+}
+@media (max-width:1020px){
+  .hero-grid{grid-template-columns:1fr}
+  .grid-shell{grid-template-columns:1fr}
+  .ball-shell{grid-template-columns:1fr}
+  .app-shell{grid-template-columns:1fr}
+  .contact{grid-template-columns:1fr}
+  .sec-head{grid-template-columns:1fr; gap:18px}
+  .c-8,.c-4,.c-12{grid-column:span 12}
+  .split{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .nav-links{
+    position:fixed; inset:68px 0 auto 0; flex-direction:column; align-items:flex-start; gap:0;
+    background:rgba(4,12,21,.97); border-bottom:1px solid var(--line); padding:8px 28px 20px;
+    transform:translateY(-8px); opacity:0; pointer-events:none; transition:opacity .25s, transform .25s;
+  }
+  .nav.open .nav-links{opacity:1; transform:none; pointer-events:auto}
+  .nav-links a{padding:13px 0; width:100%; border-bottom:1px solid var(--line); font-size:1rem}
+  .burger{display:block}
+  .nav-cta{display:none}
+  .counters{grid-template-columns:1fr}
+  .sensors{grid-template-columns:1fr 1fr}
+  .compare{min-height:260px; aspect-ratio:16/12}
+  .hero{padding-top:110px}
+  .wrap{padding:0 20px}
+  .nav-in{padding:0 20px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important}
+  .rv{opacity:1; transform:none}
+  .hero h1 span.line i{transform:none}
+}
+</style>
+</head>
+<body style="padding-left:var(--rail)">
+
+<canvas id="pipe-canvas" aria-hidden="true"></canvas>
+
+<!-- kilometre rail -->
+<aside class="rail" id="rail" aria-hidden="true">
+  <div class="rail-track" id="railTrack">
+    <div class="rail-fill" id="railFill"></div>
+    <div class="rail-head" id="railHead"></div>
+  </div>
+  <p class="rail-cap"><b id="railKm">0.0 km</b>Selaulim → Margao</p>
+</aside>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M16 3c5.2 6.1 8.6 10.6 8.6 15A8.6 8.6 0 0 1 16 26.6 8.6 8.6 0 0 1 7.4 18C7.4 13.6 10.8 9.1 16 3Z" stroke="#00E5FF" stroke-width="1.6"/>
+        <circle cx="16" cy="18.4" r="3.4" fill="#00E5FF" opacity=".9"/>
+        <path d="M3 18.4h4.4M24.6 18.4H29" stroke="#7FE9E1" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <span>Jal Suraksha<small>Every drop counts</small></span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#grid">The grid</a>
+      <a href="#ball">Smart Ball</a>
+      <a href="#app">Consumer app</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#contact">About</a>
+    </nav>
+    <a class="nav-cta" href="#contact">Request a pilot</a>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main class="stage" id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero wrap">
+  <div class="hero-grid">
+    <div>
+      <p class="kicker">IoT water grid · Selaulim Dam to Margao Reservoir, Goa</p>
+      <h1>
+        <span class="line"><i>Every drop counts.</i></span>
+        <span class="line"><i>We digitise the underground.</i></span>
+      </h1>
+      <p class="lede">Treated water disappears between the reservoir and the tap, and GPS cannot follow it down there. Jal Suraksha meters every five kilometres, sends a sensor ball through the pipe to map what the meters cannot see, and puts a shut-off valve in the hands of every household.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#ball">Explore the technology</a>
+        <a class="btn btn-ghost" href="#dashboard"><span class="dot"></span>See live data</a>
+      </div>
+    </div>
+    <div class="hero-panel" aria-label="Simulated grid feed">
+      <div class="ph"><span>grid feed · zone 04</span><span class="live"><i></i>streaming</span></div>
+      <div class="ticker" id="ticker"></div>
+    </div>
+  </div>
+  <div class="scroll-hint" aria-hidden="true"><span></span>scroll to travel the pipe</div>
+</section>
+
+<!-- ============ LOSS / COUNTERS ============ -->
+<section class="band wrap">
+  <div class="sec-head rv">
+    <div>
+      <p class="kicker">The loss</p>
+      <h2>Water leaves the dam. Far less of it arrives.</h2>
+    </div>
+    <p class="lede">Roughly a third of treated supply is lost in transmission across Indian networks — split between cracks nobody can see and taps nobody authorised. The two look identical on a monthly bill, which is why neither gets fixed.</p>
+  </div>
+
+  <div class="counters rv">
+    <div class="counter">
+      <div class="n" data-count="1284500" data-dur="2200">0<em>L</em></div>
+      <div class="l">Water recovered on the pilot stretch</div>
+      <div class="s">since the grid went live, 30 km corridor</div>
+    </div>
+    <div class="counter">
+      <div class="n" data-count="37" data-dur="1600">0</div>
+      <div class="l">Leaks located to the metre</div>
+      <div class="s">21 cracks, 16 unmapped tap-offs</div>
+    </div>
+    <div class="counter">
+      <div class="n" data-count="92" data-dur="1800">0<em>%</em></div>
+      <div class="l">Faults found before a complaint</div>
+      <div class="s">average detection time: 4 h 12 m</div>
+    </div>
+  </div>
+
+  <div class="pill-row rv">
+    <span class="pill">7 monitoring junctions</span>
+    <span class="pill">1 retrievable Smart Ball</span>
+    <span class="pill">No GPS required</span>
+    <span class="pill">Household valve control</span>
+  </div>
+</section>
+
+<!-- ============ COMPARE ============ -->
+<section class="band wrap">
+  <div class="sec-head rv">
+    <div>
+      <p class="kicker">Before and after</p>
+      <h2>Same pipe. One of them can be repaired.</h2>
+    </div>
+    <p class="lede">Drag the handle. On the left, a buried main with one bulk meter at each end — a loss figure and no address. On the right, the same main under Jal Suraksha, where the loss has coordinates, a volume and a cause.</p>
+  </div>
+
+  <div class="compare rv" id="compare" role="slider" tabindex="0" aria-label="Compare unmonitored and monitored pipeline" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+    <div class="layer before" aria-hidden="true">
+      <svg viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="soilA" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0A1620"/><stop offset="1" stop-color="#050B12"/>
+          </linearGradient>
+        </defs>
+        <rect width="1200" height="560" fill="url(#soilA)"/>
+        <g stroke="rgba(150,196,224,.07)">
+          <path d="M0 150h1200M0 300h1200M0 450h1200"/>
+        </g>
+        <path d="M60 300 C 260 240, 420 360, 620 300 S 980 250, 1140 300" stroke="#2A3B49" stroke-width="26" fill="none" stroke-linecap="round"/>
+        <path d="M60 300 C 260 240, 420 360, 620 300 S 980 250, 1140 300" stroke="#16242F" stroke-width="16" fill="none" stroke-linecap="round"/>
+        <g fill="#5D7386" font-family="JetBrains Mono, monospace" font-size="15">
+          <text x="58" y="262">bulk meter in</text>
+          <text x="1010" y="262">bulk meter out</text>
+        </g>
+        <g fill="rgba(255,92,92,.16)">
+          <ellipse cx="430" cy="335" rx="70" ry="34"/><ellipse cx="760" cy="292" rx="58" ry="28"/>
+        </g>
+        <g fill="#42586A" font-family="JetBrains Mono, monospace" font-size="52" font-weight="700" opacity=".55">
+          <text x="405" y="352">?</text><text x="742" y="308">?</text>
+        </g>
+        <g font-family="JetBrains Mono, monospace" font-size="17" fill="#8FA3B3">
+          <text x="60" y="472">monthly audit</text>
+          <text x="60" y="502" fill="#FF8A8A" font-size="25">31% unaccounted for</text>
+          <text x="60" y="532" font-size="14">no location · no cause · no repair order</text>
+        </g>
+      </svg>
+    </div>
+    <div class="layer after" id="cmpAfter" aria-hidden="true">
+      <svg viewBox="0 0 1200 560" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="soilB" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#062033"/><stop offset="1" stop-color="#03101B"/>
+          </linearGradient>
+          <linearGradient id="pipeB" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#0E4E76"/><stop offset="1" stop-color="#12678F"/>
+          </linearGradient>
+        </defs>
+        <rect width="1200" height="560" fill="url(#soilB)"/>
+        <g stroke="rgba(0,229,255,.09)">
+          <path d="M0 150h1200M0 300h1200M0 450h1200"/>
+          <path d="M200 0v560M500 0v560M800 0v560M1100 0v560"/>
+        </g>
+        <path d="M60 300 C 260 240, 420 360, 620 300 S 980 250, 1140 300" stroke="url(#pipeB)" stroke-width="26" fill="none" stroke-linecap="round"/>
+        <path d="M60 300 C 260 240, 420 360, 620 300 S 980 250, 1140 300" stroke="#7FE9E1" stroke-width="3" fill="none" stroke-linecap="round" stroke-dasharray="10 26" opacity=".9">
+          <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="1.4s" repeatCount="indefinite"/>
+        </path>
+        <g>
+          <circle cx="180" cy="271" r="9" fill="#00E5FF"/><circle cx="430" cy="334" r="9" fill="#00E5FF"/>
+          <circle cx="680" cy="289" r="9" fill="#00E5FF"/><circle cx="930" cy="268" r="9" fill="#00E5FF"/>
+          <circle cx="180" cy="271" r="17" fill="none" stroke="#00E5FF" opacity=".45"/>
+          <circle cx="430" cy="334" r="17" fill="none" stroke="#00E5FF" opacity=".45"/>
+          <circle cx="680" cy="289" r="17" fill="none" stroke="#00E5FF" opacity=".45"/>
+          <circle cx="930" cy="268" r="17" fill="none" stroke="#00E5FF" opacity=".45"/>
+        </g>
+        <g font-family="JetBrains Mono, monospace" font-size="14" fill="#7FE9E1">
+          <text x="158" y="242">J1 · 5 km</text><text x="406" y="380">J2 · 10 km</text>
+          <text x="656" y="260">J3 · 15 km</text><text x="906" y="239">J4 · 20 km</text>
+        </g>
+        <g>
+          <circle cx="545" cy="323" r="13" fill="none" stroke="#FF5C5C" stroke-width="2">
+            <animate attributeName="r" values="13;30;13" dur="2.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values=".95;0;.95" dur="2.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="545" cy="323" r="7" fill="#FF5C5C"/>
+          <path d="M545 323 L 660 430" stroke="#FF5C5C" stroke-width="1.4" opacity=".7"/>
+          <g font-family="JetBrains Mono, monospace" font-size="15">
+            <text x="668" y="428" fill="#FF9A9A">crack · 17.4 km · 10.0 L/s leak</text>
+            <text x="668" y="450" fill="#8FA3B3" font-size="13">acoustic 2.1 kHz · pressure −0.4 bar</text>
+          </g>
+        </g>
+        <g font-family="JetBrains Mono, monospace" font-size="17" fill="#8FA3B3">
+          <text x="60" y="472">live reconciliation</text>
+          <text x="60" y="502" fill="#43E08A" font-size="25">3.1% unaccounted for</text>
+          <text x="60" y="532" font-size="14">located · quantified · repair order raised</text>
+        </g>
+      </svg>
+    </div>
+    <span class="cmp-tag l">Unmonitored main</span>
+    <span class="cmp-tag r">Jal Suraksha grid</span>
+    <div class="cmp-handle" id="cmpHandle"><div class="cmp-knob">drag</div></div>
+  </div>
+</section>
+
+<!-- ============ THE GRID ============ -->
+<section class="band band-solid" id="grid">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="kicker">The grid · junction monitoring</p>
+        <h2>A meter every five kilometres turns a missing volume into a zone.</h2>
+      </div>
+      <p class="lede">Each junction carries a flow meter, a pressure transducer, a DHT11 for chamber humidity and an acoustic sensor clamped to the pipe curve, where turbulence makes a leak loudest. Pick a junction to read it.</p>
+    </div>
+
+    <div class="grid-shell">
+      <div class="map-card rv">
+        <div class="map-head">
+          <h3>Selaulim Dam → Margao Reservoir</h3>
+          <span class="mono">30.0 km · 7 junctions · 600 mm DI main</span>
+        </div>
+        <svg class="route" viewBox="0 0 960 330" id="routeSvg" role="group" aria-label="Pipeline route with seven junctions">
+          <defs>
+            <linearGradient id="terr" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="rgba(0,229,255,.05)"/><stop offset="1" stop-color="rgba(0,229,255,0)"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="960" height="330" fill="url(#terr)"/>
+          <g stroke="rgba(150,196,224,.08)" stroke-dasharray="3 7">
+            <path d="M0 90h960M0 170h960M0 250h960"/>
+          </g>
+          <g id="segs"></g>
+          <path id="flowPath" class="flowline" d="" />
+          <g id="nodes"></g>
+          <g id="leakPin" class="leakpin" opacity="0">
+            <circle cx="0" cy="0" r="5"/>
+            <circle cx="0" cy="0" r="12" fill="none" stroke="#FF5C5C" stroke-width="1.5">
+              <animate attributeName="r" values="9;22;9" dur="2s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values=".9;0;.9" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="14" y="4">leak · 17.4 km</text>
+          </g>
+          <g font-family="JetBrains Mono, monospace" font-size="11" fill="#5D7386">
+            <text x="4" y="322">Selaulim Dam · 0 km</text>
+            <text x="836" y="322">Margao · 30 km</text>
+          </g>
+        </svg>
+        <p class="hint-row"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg> Segment colour shows the volume mismatch between its two junctions.</p>
+      </div>
+
+      <aside class="readout rv" id="readout" aria-live="polite">
+        <header><b id="jName">Junction 4</b><span id="jKm">20.0 km</span></header>
+        <div class="sensors">
+          <div class="sensor"><div class="k">Flow in</div><div class="v"><span id="sFlow">40.0</span><u>L/s</u></div></div>
+          <div class="sensor"><div class="k">Line pressure</div><div class="v"><span id="sPres">3.4</span><u>bar</u></div></div>
+          <div class="sensor"><div class="k">Chamber humidity</div><div class="v"><span id="sHum">88</span><u>%</u></div></div>
+          <div class="sensor" id="acBox"><div class="k">Acoustic peak</div><div class="v"><span id="sAc">2.1</span><u>kHz</u></div></div>
+        </div>
+        <div class="balance">
+          <div class="bal-row"><span>Entered at previous junction</span><b id="bIn">50.0 L/s</b></div>
+          <div class="bal-row"><span>Arrived here</span><b id="bOut">40.0 L/s</b></div>
+          <div class="bal-row delta" id="bDeltaRow"><span>Unaccounted</span><b id="bDelta">10.0 L/s</b></div>
+        </div>
+        <div class="verdict bad" id="verdict">Ten litres a second go missing between junction 3 and junction 4. The acoustic channel is loud and the pressure has dropped, so this zone gets the Smart Ball.</div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SMART BALL ============ -->
+<section class="band band-solid" id="ball">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="kicker">Core innovation · the Smart Ball</p>
+        <h2>It cannot see a satellite, so it counts its own turns instead.</h2>
+      </div>
+      <p class="lede">Dropped in at the flagged junction, the ball travels with the water and writes its own map. Drag to rotate it. Open the shell to see what is inside.</p>
+    </div>
+
+    <div class="ball-shell">
+      <div class="ball-stage rv" id="ballStage">
+        <canvas id="ball-canvas"></canvas>
+        <div class="hot" data-hot="mcu"><b>ESP8266 NodeMCU</b></div>
+        <div class="hot" data-hot="imu"><b>MPU-6050 IMU</b></div>
+        <div class="hot" data-hot="mic"><b>Acoustic microphone</b></div>
+        <div class="hot" data-hot="pres"><b>Pressure transducer</b></div>
+        <div class="hot" data-hot="water"><b>Water Contact Sensor</b></div>
+        <div class="hot" data-hot="dht"><b>DHT11 Sensor</b></div>
+        <div class="hot" data-hot="cell"><b>Cell + wireless charge</b></div>
+        <div class="hot" data-hot="shell"><b>Titanium shell</b></div>
+        <div class="ball-ctl">
+          <button class="chip" id="explodeBtn" aria-pressed="false">Open the shell</button>
+          <button class="chip" id="spinBtn" aria-pressed="true">Pause rotation</button>
+        </div>
+      </div>
+
+      <div>
+        <ul class="parts">
+          <li><span class="sw" style="background:#111111; border: 1px solid var(--cyan)"></span><div><b>ESP8266 NodeMCU</b><p>The central processing unit that orchestrates the sensors, processes telemetry data in real-time, and handles wireless transmission when the ball is retrieved.</p></div></li>
+          <li><span class="sw" style="background:#00E5FF"></span><div><b>Inertial mapping, not satellites</b><p>The IMU integrates every bend, dip and rise the ball takes. Matched against the as-built drawing, that trace places the ball to within a metre of pipe — and any branch that is not on the drawing is an illegal tap-off.</p></div></li>
+          <li><span class="sw" style="background:#7FE9E1"></span><div><b>Listening for the hiss</b><p>Escaping water through a crack makes a narrow high-frequency signature. The microphone rides past it, so the loudest sample marks the exact point rather than the nearest chamber.</p></div></li>
+          <li><span class="sw" style="background:#C6CFD6"></span><div><b>Pressure as confirmation</b><p>A leak pulls the line down locally. The pressure trace and the acoustic peak have to agree before the dashboard raises a repair order, which keeps false alarms off the crew's morning list.</p></div></li>
+          <li><span class="sw" style="background:#AAAAAA"></span><div><b>Water Contact Sensor</b><p>Tells the system when the ball is submerged, waking up the main electronics from sleep mode to conserve battery during transit.</p></div></li>
+          <li><span class="sw" style="background:#0055FF"></span><div><b>DHT11 Sensor</b><p>Monitors internal temperature and humidity to ensure the integrity of the titanium shell and prevent condensation damage to the electronics.</p></div></li>
+          <li><span class="sw" style="background:#FFB65C"></span><div><b>Sleeping to survive the run</b><p>Out of the water it sleeps, so the cell is spent on the thirty kilometres that matter and the ball comes back with charge to spare.</p></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONSUMER APP ============ -->
+<section class="band band-solid" id="app">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="kicker">The last hundred metres</p>
+        <h2>The grid ends at a tap, so it ends in the resident's hand.</h2>
+      </div>
+      <p class="lede">A flow sensor on the house connection confirms what was actually delivered, watches the tank while nobody is home, and can close the main valve from the phone before a burst line reaches the floor.</p>
+    </div>
+
+    <div class="app-shell">
+      <div class="rv">
+        <div class="phone">
+          <div class="screen" id="screen">
+            <div class="sbar"><span>9:41</span><span id="sbarMode">home</span></div>
+            <div class="scr-body">
+              <div class="scr on" data-scr="order">
+                <h4>Your supply</h4>
+                <p class="sub">Tank 02 · rooftop · verified by house meter</p>
+                <div class="tank">
+                  <div class="row"><span>in tank now</span><span id="tankPct">62%</span></div>
+                  <div class="big"><span id="tankL">620</span><u>L</u></div>
+                  <div class="bar"><i id="tankBar"></i></div>
+                  <div class="row" style="margin-top:12px"><span>this month</span><span>3,410 L of 4,500 L</span></div>
+                </div>
+                
+                <!-- Direct Water Input replaced the QR functionality -->
+                <div class="order-input">
+                  <p>Request Water Volume (L)</p>
+                  <div class="flex-row">
+                    <input type="number" id="waterInput" placeholder="e.g. 5" min="1" max="5000">
+                    <button id="orderWaterBtn">Order</button>
+                  </div>
+                  <p id="orderStatus" class="order-stat"></p>
+                </div>
+              </div>
+
+              <!-- New Complaint Screen -->
+              <div class="scr" data-scr="complaint">
+                <h4>Report Discrepancy</h4>
+                <p class="sub">Resolve volume mismatches instantly</p>
+                <div class="tank">
+                  <div class="row"><span>ordered today</span><span style="color:#fff">10 L</span></div>
+                  <div class="row" style="margin-top:9px"><span>metered arrival</span><span style="color:var(--alert)">5 L</span></div>
+                  <div class="row" style="margin-top:9px"><span>shortfall</span><span style="color:var(--alert)">5 L</span></div>
+                </div>
+                <div class="order-input" style="margin-top:16px;">
+                  <p style="text-align:left; margin-bottom:6px;">Issue details</p>
+                  <textarea id="complaintText" style="width:100%; background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:8px; padding:10px; color:var(--ink); font-family:var(--sans); font-size:13px; resize:none; height:80px;" placeholder="Tanker left before full delivery..."></textarea>
+                  <button id="submitComplaintBtn" style="width:100%; margin-top:12px; background:var(--alert); color:#2A0606; border:none; border-radius:8px; padding:12px; font-weight:600; cursor:pointer;">File Complaint</button>
+                  <p id="complaintStatus" class="order-stat" style="text-align:center; color:var(--ok); margin-top:8px;"></p>
+                </div>
+              </div>
+
+              <div class="scr" data-scr="away">
+                <h4>Away mode</h4>
+                <p class="sub">Any draw above 0.2 L/min raises an alert</p>
+                <div class="toggle-card">
+                  <div><b>Away mode</b><p id="awayState">Off · normal monitoring</p></div>
+                  <button class="sw-btn" id="awaySw" role="switch" aria-checked="false" aria-label="Away mode"><i></i></button>
+                </div>
+                <div class="alert-card" id="alertCard">
+                  <b><i></i>Unexpected draw detected</b>
+                  <p id="alertText">1.8 L/min for 6 minutes with nobody home. Likely a burst line on the first floor.</p>
+                  <button class="valve-btn" id="valveBtn">Shut off the main valve</button>
+                </div>
+                <div class="valve-vis" id="valveVis">
+                  <svg viewBox="0 0 200 104" aria-hidden="true">
+                    <path class="vpipe" d="M12 52h176"/>
+                    <path class="vflow" d="M12 52h176"/>
+                    <circle cx="100" cy="52" r="18" fill="#0B2B40" stroke="rgba(150,196,224,.4)"/>
+                    <g class="vhandle"><rect x="96" y="20" width="8" height="30" rx="3" fill="#C6CFD6"/><rect x="86" y="14" width="28" height="8" rx="4" fill="#C6CFD6"/></g>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="scr" data-scr="usage">
+                <h4>Where it went</h4>
+                <p class="sub">Last 7 days · house meter</p>
+                <canvas id="usageChart" style="width:100%;height:150px;display:block"></canvas>
+                <div class="tank" style="margin-top:16px">
+                  <div class="row"><span>daily average</span><span style="color:#fff">487 L</span></div>
+                  <div class="row" style="margin-top:9px"><span>ward average</span><span style="color:#fff">556 L</span></div>
+                  <div class="row" style="margin-top:9px"><span>overnight baseline</span><span style="color:#43E08A">0.0 L/min</span></div>
+                </div>
+                <p class="sub" style="margin-top:14px">A baseline that never reaches zero overnight is the earliest sign of a leak inside the house.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rv">
+        <div class="app-tabs">
+          <button class="chip on" data-tab="order">Order</button>
+          <button class="chip" data-tab="complaint">Complaints</button>
+          <button class="chip" data-tab="away">Away mode</button>
+          <button class="chip" data-tab="usage">Usage</button>
+        </div>
+        <div class="feat">
+          <span class="ix"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM19 19h2v2h-2z"/></svg></span>
+          <div><b>Direct order, meter to confirm</b><p>The resident directly enters the required volume in the app to book water. The house flow sensor records what was actually delivered, so a short load is visible the same day instead of being argued about a month later.</p></div>
+        </div>
+        <div class="feat">
+          <span class="ix"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+          <div><b>Automated Complaints</b><p>If the ordered volume and the metered volume don't match, the app flags the discrepancy and lets the resident file a verified complaint in seconds.</p></div>
+        </div>
+        <div class="feat">
+          <span class="ix"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span>
+          <div><b>Away mode watches the tank</b><p>Switch it on when the house is empty. Any sustained draw is unexpected by definition, and the alert arrives while there is still time to act.</p></div>
+        </div>
+        <div class="feat">
+          <span class="ix"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 8V3M12 21v-5M4 12h4M16 12h4"/></svg></span>
+          <div><b>One tap closes the main</b><p>The motorised valve sits on the house connection. Closing it from the phone stops a flooded floor, and reopening it is the same tap once the plumber has been.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<section class="band band-solid" id="dashboard">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="kicker">Margao collection point · command view</p>
+        <h2>Junction feed and ball log, reconciled on one map.</h2>
+      </div>
+      <p class="lede">The ball's inertial trace, the junction balance and the household meters describe the same water from three directions. Where they disagree, there is a repair order.</p>
+    </div>
+
+    <div class="dash rv">
+      <div class="dash-top">
+        <div class="t"><i></i>Zone 04 · Selaulim–Margao corridor</div>
+        <div class="meta"><span>ball run #118 · 02:14 elapsed</span><span>junctions 7/7 online</span><span>last sync 12 s ago</span></div>
+      </div>
+      <div class="dash-grid">
+        <div class="cell c-8">
+          <h5>Flow Volume along the run</h5>
+          <p class="cap">L/s · Flow drops visibly at the leak point (15-20km)</p>
+          <canvas class="chart" id="presChart"></canvas>
+        </div>
+        <div class="cell c-4">
+          <h5>Delivery by zone</h5>
+          <p class="cap">volume arriving as a share of volume sent</p>
+          <div id="zones"></div>
+        </div>
+        
+        <!-- Expanded event log since the Heatmap was removed -->
+        <div class="cell c-12">
+          <h5>Event log</h5>
+          <p class="cap">ball telemetry and junction reconciliation</p>
+          <div class="log" id="dashLog"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="card rv"><b>Find it</b><p>The junction balance narrows the loss to a five kilometre zone within one billing cycle. The ball closes that to a metre in a single run.</p></div>
+      <div class="card rv"><b>Prove it</b><p>Acoustic peak, pressure drop and an unmapped IMU branch form the evidence pack that goes out with the crew, so the excavation happens once.</p></div>
+      <div class="card rv"><b>Keep it</b><p>Household meters and away mode stop the recovered water from leaking straight back out behind a wall.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section class="band band-solid" id="contact">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <div>
+        <p class="kicker">Mission</p>
+        <h2>Equitable supply starts with knowing where the water went.</h2>
+      </div>
+      <p class="lede">Jal Suraksha is built to be retrofitted onto mains that already exist, one zone at a time. Tell us the stretch you want instrumented and we will scope the junctions, the run and the household rollout.</p>
+    </div>
+
+    <div class="contact">
+      <form class="form rv" id="pilotForm" novalidate>
+        <div class="field"><label for="f-name">Name</label><input id="f-name" name="name" autocomplete="name" required></div>
+        <div class="field"><label for="f-org">Utility or organisation</label><input id="f-org" name="org" autocomplete="organization" required></div>
+        <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="f-len">Stretch to instrument</label>
+          <select id="f-len" name="length">
+            <option>Under 10 km</option><option selected>10 – 30 km</option><option>30 – 100 km</option><option>Whole network</option>
+          </select>
+        </div>
+        <div class="field"><label for="f-msg">What is going missing</label><textarea id="f-msg" name="message" placeholder="Reservoir, ward, the loss you are seeing and where it starts."></textarea></div>
+        <button class="btn btn-primary" type="submit" style="justify-self:start">Send the brief</button>
+        <p class="fstat" id="formStat" role="status"></p>
+        <p class="form-note">This is a project demonstration page — the form does not transmit anything.</p>
+      </form>
+
+      <div class="rv">
+        <h3>Documents</h3>
+        <ul class="docs">
+          <li><a href="#top">System whitepaper<span>PDF · 2.4 MB</span></a></li>
+          <li><a href="#top">Junction sensor specification<span>PDF · 890 KB</span></a></li>
+          <li><a href="#top">Smart Ball run report #118<span>PDF · 1.1 MB</span></a></li>
+          <li><a href="#top">Selaulim–Margao pilot summary<span>PDF · 1.6 MB</span></a></li>
+        </ul>
+        <h3 style="margin-top:34px">Team</h3>
+        <p class="lede" style="font-size:.95rem; margin-top:10px">Hardware, firmware and analytics built as one system rather than three products. Junction nodes assembled in-house; the ball shell is machined titanium with a polymer equator for the radio.</p>
+        <div class="pill-row">
+          <span class="pill">jalsuraksha.project@gmail.com</span>
+          <span class="pill">Margao, Goa</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>&copy; 2026 Piyush Naik Desai. All rights reserved. Jal Suraksha — every drop counts.</span>
+    <nav>
+      <a href="#grid">The grid</a><a href="#ball">Smart Ball</a><a href="#app">Consumer app</a><a href="#dashboard">Dashboard</a><a href="#contact">Contact</a>
+    </nav>
+    <span>Demonstration data. Pilot corridor: Selaulim Dam to Margao Reservoir.</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $ = function(s,c){return (c||document).querySelector(s);};
+var $$ = function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s));};
+var clamp = function(v,a,b){return Math.max(a,Math.min(b,v));};
+var lerp = function(a,b,t){return a+(b-a)*t;};
+
+/* ============================ NAV ============================ */
+var nav = $('#nav'), burger = $('#burger');
+burger.addEventListener('click', function(){
+  var open = nav.classList.toggle('open');
+  burger.setAttribute('aria-expanded', open ? 'true':'false');
+});
+$$('#navLinks a').forEach(function(a){
+  a.addEventListener('click', function(){ nav.classList.remove('open'); burger.setAttribute('aria-expanded','false'); });
+});
+var sectionIds = ['grid','ball','app','dashboard','contact'];
+function onScrollNav(){
+  nav.classList.toggle('stuck', window.scrollY > 40);
+  var y = window.scrollY + window.innerHeight*0.35, cur = null;
+  sectionIds.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && el.offsetTop <= y) cur = id;
+  });
+  $$('#navLinks a').forEach(function(a){
+    a.classList.toggle('active', cur && a.getAttribute('href') === '#'+cur);
+  });
+}
+
+/* ============================ REVEAL ============================ */
+var io = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{threshold:.12, rootMargin:'0px 0px -8% 0px'});
+$$('.rv').forEach(function(el){ io.observe(el); });
+
+/* ============================ COUNTERS ============================ */
+function runCounter(el){
+  var target = parseFloat(el.getAttribute('data-count'));
+  var dur = parseInt(el.getAttribute('data-dur')||'1800',10);
+  var suffix = el.querySelector('em') ? el.querySelector('em').outerHTML : '';
+  var t0 = performance.now();
+  function step(t){
+    var p = clamp((t-t0)/dur,0,1);
+    var e = 1 - Math.pow(1-p, 3);
+    var val = Math.round(target*e);
+    el.innerHTML = val.toLocaleString('en-IN') + suffix;
+    if(p<1) requestAnimationFrame(step);
+  }
+  if(REDUCED){ el.innerHTML = target.toLocaleString('en-IN') + suffix; return; }
+  requestAnimationFrame(step);
+}
+var cIo = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){ if(e.isIntersecting){ runCounter(e.target); cIo.unobserve(e.target); } });
+},{threshold:.5});
+$$('[data-count]').forEach(function(el){ cIo.observe(el); });
+
+/* ============================ HERO TICKER ============================ */
+var tickerEl = $('#ticker');
+var tickLines = [
+  ['J1','flow 50.0 L/s · pressure 4.1 bar',''],
+  ['J2','flow 50.0 L/s · pressure 4.0 bar',''],
+  ['J3','flow 50.0 L/s · pressure 3.9 bar',''],
+  ['J4','flow 40.0 L/s · pressure 3.4 bar','r'],
+  ['sys','zone 3→4 unaccounted 10.0 L/s','r'],
+  ['ball','released at J3 · sleep off','g'],
+  ['ball','acoustic peak 2.1 kHz @ 17.4 km','r'],
+  ['ball','illegal tap-off detected @ 17.4 km','r'],
+  ['sys','repair order 4471 raised','g'],
+  ['J5','flow 40.0 L/s · pressure 3.3 bar',''],
+  ['J6','flow 40.0 L/s · pressure 3.1 bar',''],
+  ['sys','zone 4→5 balance within tolerance','g']
+];
+function pad(n){return n<10?'0'+n:''+n;}
+var tickI = 0;
+function pushTick(){
+  var l = tickLines[tickI % tickLines.length]; tickI++;
+  var d = new Date();
+  var row = document.createElement('div');
+  row.innerHTML = '<b>'+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())+'</b><span class="'+l[2]+'">'+l[0]+' · '+l[1]+'</span>';
+  tickerEl.insertBefore(row, tickerEl.firstChild);
+  while(tickerEl.children.length > 7) tickerEl.removeChild(tickerEl.lastChild);
+}
+for(var i=0;i<7;i++) pushTick();
+if(!REDUCED) setInterval(pushTick, 2600);
+
+/* ============================ COMPARE SLIDER ============================ */
+(function(){
+  var box = $('#compare'), after = $('#cmpAfter'), handle = $('#cmpHandle');
+  if(!box) return;
+  var pos = 50, dragging = false;
+  function set(p){
+    pos = clamp(p,3,97);
+    after.style.clipPath = 'inset(0 0 0 '+pos+'%)';
+    handle.style.left = pos+'%';
+    box.setAttribute('aria-valuenow', Math.round(pos));
+  }
+  function fromEvent(e){
+    var r = box.getBoundingClientRect();
+    var x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    set(x/r.width*100);
+  }
+  box.addEventListener('pointerdown', function(e){ dragging = true; box.setPointerCapture(e.pointerId); fromEvent(e); });
+  box.addEventListener('pointermove', function(e){ if(dragging) fromEvent(e); });
+  window.addEventListener('pointerup', function(){ dragging = false; });
+  box.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowLeft'){ set(pos-4); e.preventDefault(); }
+    if(e.key === 'ArrowRight'){ set(pos+4); e.preventDefault(); }
+  });
+  set(50);
+  var demoed = false;
+  var dio = new IntersectionObserver(function(en){
+    en.forEach(function(e){
+      if(e.isIntersecting && !demoed && !REDUCED){
+        demoed = true;
+        var t0 = performance.now();
+        (function sweep(t){
+          var p = clamp((t-t0)/1500,0,1), e2 = 1-Math.pow(1-p,3);
+          set(lerp(50, 22, e2));
+          if(p<1) requestAnimationFrame(sweep);
+        })(t0);
+      }
+    });
+  },{threshold:.5});
+  dio.observe(box);
+})();
+
+/* ============================ JUNCTION MAP ============================ */
+var JUNCTIONS = [
+  {n:'Intake · Selaulim Dam', km:0,  x:30,  y:210, flow:50.0, pres:4.3, hum:58, ac:0.3, inFlow:null,  status:'ok'},
+  {n:'Junction 1', km:5,  x:185, y:168, flow:50.0, pres:4.1, hum:59, ac:0.3, inFlow:50.0, status:'ok'},
+  {n:'Junction 2', km:10, x:330, y:205, flow:50.0, pres:4.0, hum:62, ac:0.4, inFlow:50.0, status:'ok'},
+  {n:'Junction 3', km:15, x:470, y:150, flow:50.0, pres:3.9, hum:60, ac:0.4, inFlow:50.0, status:'ok'},
+  {n:'Junction 4', km:20, x:620, y:186, flow:40.0, pres:3.4, hum:88, ac:2.1, inFlow:50.0, status:'bad'},
+  {n:'Junction 5', km:25, x:762, y:132, flow:40.0, pres:3.3, hum:64, ac:0.5, inFlow:40.0, status:'warn'},
+  {n:'Margao Reservoir', km:30, x:906, y:170, flow:40.0, pres:3.1, hum:57, ac:0.4, inFlow:40.0, status:'ok'}
+];
+(function(){
+  var svg = $('#routeSvg'); if(!svg) return;
+  var segG = $('#segs'), nodeG = $('#nodes'), flowPath = $('#flowPath'), leakPin = $('#leakPin');
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function curve(a,b){
+    var mx = (a.x+b.x)/2;
+    return 'M'+a.x+' '+a.y+' C '+mx+' '+a.y+', '+mx+' '+b.y+', '+b.x+' '+b.y;
+  }
+  var full = 'M'+JUNCTIONS[0].x+' '+JUNCTIONS[0].y;
+  for(var i=1;i<JUNCTIONS.length;i++){
+    var a = JUNCTIONS[i-1], b = JUNCTIONS[i], mx = (a.x+b.x)/2;
+    full += ' C '+mx+' '+a.y+', '+mx+' '+b.y+', '+b.x+' '+b.y;
+    var seg = document.createElementNS(NS,'path');
+    seg.setAttribute('d', curve(a,b));
+    seg.setAttribute('class','seg '+(b.status==='bad'?'bad':(b.status==='warn'?'warn':'ok')));
+    seg.setAttribute('data-seg', i);
+    segG.appendChild(seg);
+  }
+  flowPath.setAttribute('d', full);
+
+  JUNCTIONS.forEach(function(j, idx){
+    var g = document.createElementNS(NS,'g');
+    g.setAttribute('class','jnode'); g.setAttribute('data-i', idx);
+    g.setAttribute('tabindex','0'); g.setAttribute('role','button');
+    g.setAttribute('aria-label', j.n + ' at ' + j.km + ' kilometres');
+    g.innerHTML =
+      '<circle class="halo" cx="'+j.x+'" cy="'+j.y+'" r="18"/>'+
+      '<circle class="ring" cx="'+j.x+'" cy="'+j.y+'" r="10"/>'+
+      '<circle class="core" cx="'+j.x+'" cy="'+j.y+'" r="4.4"/>'+
+      '<circle class="hit" cx="'+j.x+'" cy="'+j.y+'" r="26"/>'+
+      '<text x="'+(j.x-12)+'" y="'+(j.y-22)+'">'+(idx===0?'0 km':(idx===6?'30 km':j.km+' km'))+'</text>';
+    nodeG.appendChild(g);
+    g.addEventListener('click', function(){ select(idx); });
+    g.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); select(idx); } });
+  });
+
+  var els = {
+    name:$('#jName'), km:$('#jKm'), flow:$('#sFlow'), pres:$('#sPres'), hum:$('#sHum'), ac:$('#sAc'),
+    acBox:$('#acBox'), bIn:$('#bIn'), bOut:$('#bOut'), bDelta:$('#bDelta'), bRow:$('#bDeltaRow'), verdict:$('#verdict')
+  };
+  var VERDICTS = [
+    'Reference point. Everything downstream is measured against the volume leaving the dam here.',
+    'Balance holds. The small drop across this zone is normal friction loss on a 600 mm main.',
+    'Balance holds. Chamber humidity is slightly up after rain, with no acoustic activity.',
+    'Balance holds, and this is the last clean reading before the loss appears.',
+    'Ten litres a second go missing between junction 3 and junction 4. The acoustic channel is loud and the pressure has dropped, so this zone gets the Smart Ball.',
+    'The 40 L/s flow rate stabilizes. No further drops detected in this stretch.',
+    'Delivery point. What arrives here is what the ward can be billed for, which is why the upstream gap matters.'
+  ];
+  function select(i){
+    var j = JUNCTIONS[i];
+    $$('.jnode').forEach(function(g,k){ g.classList.toggle('sel', k===i); });
+    $$('.seg').forEach(function(s){ s.classList.toggle('sel', parseInt(s.getAttribute('data-seg'),10)===i); });
+    els.name.textContent = j.n;
+    els.km.textContent = j.km.toFixed(1)+' km';
+    els.flow.textContent = j.flow.toFixed(1);
+    els.pres.textContent = j.pres.toFixed(1);
+    els.hum.textContent = j.hum;
+    els.ac.textContent = j.ac.toFixed(1);
+    els.acBox.classList.toggle('flag', j.ac > 1.2);
+    if(j.inFlow === null){
+      els.bIn.textContent = '—';
+      els.bOut.textContent = j.flow.toFixed(1)+' L/s';
+      els.bDelta.textContent = 'reference';
+      els.bRow.classList.add('ok');
+    }else{
+      var d = j.inFlow - j.flow;
+      els.bIn.textContent = j.inFlow.toFixed(1)+' L/s';
+      els.bOut.textContent = j.flow.toFixed(1)+' L/s';
+      els.bDelta.textContent = d.toFixed(1)+' L/s';
+      els.bRow.classList.toggle('ok', d < 0.6);
+    }
+    els.verdict.textContent = VERDICTS[i];
+    els.verdict.className = 'verdict ' + (j.status==='ok' ? 'good' : 'bad');
+    if(i===4){
+      leakPin.setAttribute('opacity','1');
+      leakPin.setAttribute('transform','translate(548,178)');
+    }else{
+      leakPin.setAttribute('opacity','0');
+    }
+  }
+  select(4);
+  window.__selectJunction = select;
+})();
+
+/* ============================ HERO 3D PIPE ============================ */
+var heroActive = false;
+(function(){
+  if(typeof THREE === 'undefined') { $('#pipe-canvas').style.display='none'; return; }
+  var canvas = $('#pipe-canvas');
+  var renderer;
+  try{
+    renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true, powerPreference:'high-performance'});
+  }catch(err){ canvas.style.display='none'; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight, false);
+
+  var scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x03080F, 0.021);
+  var camera = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.1, 500);
+
+  var R = 4.6, L = 460;
+  var shell = new THREE.Mesh(
+    new THREE.CylinderGeometry(R,R,L,56,1,true),
+    new THREE.MeshPhongMaterial({color:0x0E4C74, transparent:true, opacity:0.20, side:THREE.BackSide, shininess:90, specular:0x7FE9E1})
+  );
+  shell.rotation.x = Math.PI/2; scene.add(shell);
+
+  var wire = new THREE.Mesh(
+    new THREE.CylinderGeometry(R*1.004,R*1.004,L,26,60,true),
+    new THREE.MeshBasicMaterial({color:0x2E8FB8, wireframe:true, transparent:true, opacity:0.10})
+  );
+  wire.rotation.x = Math.PI/2; scene.add(wire);
+
+  var ringGeo = new THREE.TorusGeometry(R*0.985, 0.07, 8, 60);
+  var ringMat = new THREE.MeshBasicMaterial({color:0x00E5FF, transparent:true, opacity:0.5});
+  var rings = [];
+  for(var r=0;r<12;r++){
+    var ring = new THREE.Mesh(ringGeo, ringMat.clone());
+    ring.position.z = -r*40 + 40; scene.add(ring); rings.push(ring);
+  }
+
+  var ballGrp = new THREE.Group();
+  var ballMat = new THREE.MeshStandardMaterial({color:0xC6CFD6, metalness:0.95, roughness:0.22, emissive:0x00303C, emissiveIntensity:1});
+  var ballMesh = new THREE.Mesh(new THREE.SphereGeometry(0.95, 40, 28), ballMat);
+  ballGrp.add(ballMesh);
+  var band = new THREE.Mesh(new THREE.TorusGeometry(0.955, 0.1, 10, 44), new THREE.MeshBasicMaterial({color:0x00E5FF}));
+  band.rotation.x = Math.PI/2; ballGrp.add(band);
+  var glow = new THREE.Mesh(new THREE.SphereGeometry(2.1, 24, 18),
+    new THREE.MeshBasicMaterial({color:0x00E5FF, transparent:true, opacity:0.10, blending:THREE.AdditiveBlending, side:THREE.BackSide}));
+  ballGrp.add(glow);
+  var ballLight = new THREE.PointLight(0x00E5FF, 2.4, 42, 2); ballGrp.add(ballLight);
+  scene.add(ballGrp);
+
+  scene.add(new THREE.AmbientLight(0x2C5C7A, 0.9));
+  var key = new THREE.DirectionalLight(0xBFE9FF, 0.7); key.position.set(3,5,2); scene.add(key);
+
+  var PN = 1100;
+  var pGeo = new THREE.BufferGeometry();
+  var pPos = new Float32Array(PN*3);
+  for(var p=0;p<PN;p++){
+    var a = Math.random()*Math.PI*2, rr = Math.sqrt(Math.random())*R*0.92;
+    pPos[p*3] = Math.cos(a)*rr; pPos[p*3+1] = Math.sin(a)*rr; pPos[p*3+2] = -Math.random()*L*0.9 + 40;
+  }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3));
+  var points = new THREE.Points(pGeo, new THREE.PointsMaterial({
+    color:0x7FE9E1, size:0.075, transparent:true, opacity:0.55, blending:THREE.AdditiveBlending, depthWrite:false
+  }));
+  scene.add(points);
+
+  /* leak jet at a fixed station */
+  var LEAK_Z = -196;
+  var jet = new THREE.Group(); jet.position.set(0,0,LEAK_Z); scene.add(jet);
+  var JN = 160, jGeo = new THREE.BufferGeometry(), jPos = new Float32Array(JN*3), jSeed = [];
+  for(var q=0;q<JN;q++){
+    jSeed.push({a:Math.random()*0.6-0.3, t:Math.random()});
+    jPos[q*3]=0; jPos[q*3+1]=0; jPos[q*3+2]=0;
+  }
+  jGeo.setAttribute('position', new THREE.BufferAttribute(jPos,3));
+  var jet1 = new THREE.Points(jGeo, new THREE.PointsMaterial({color:0xFF6B6B, size:0.1, transparent:true, opacity:0.8, blending:THREE.AdditiveBlending, depthWrite:false}));
+  jet.add(jet1);
+  var crack = new THREE.Mesh(new THREE.TorusGeometry(R*0.98, 0.09, 8, 40, Math.PI*0.5),
+    new THREE.MeshBasicMaterial({color:0xFF5C5C, transparent:true, opacity:0.85}));
+  crack.rotation.z = -Math.PI*0.25; jet.add(crack);
+
+  var scrollT = 0, targetT = 0, tPhase = 0;
+  function resize(){
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+
+  var gridTop = 0;
+  function measure(){
+    var g = document.getElementById('grid');
+    gridTop = g ? g.offsetTop : window.innerHeight*3;
+  }
+  measure(); window.addEventListener('resize', measure); window.addEventListener('load', measure);
+
+  function frame(){
+    requestAnimationFrame(frame);
+    var y = window.scrollY;
+    var fadeEnd = Math.max(gridTop - window.innerHeight*0.55, window.innerHeight);
+    var vis = 1 - clamp(y/fadeEnd, 0, 1);
+    canvas.style.opacity = vis.toFixed(3);
+    heroActive = vis > 0.01;
+    if(!heroActive) return;
+
+    targetT = clamp(y/Math.max(fadeEnd,1), 0, 1);
+    scrollT = lerp(scrollT, targetT, 0.07);
+    tPhase += REDUCED ? 0 : 0.01;
+
+    var camZ = 30 - scrollT*300;
+    camera.position.set(Math.sin(tPhase*0.55)*0.55, Math.cos(tPhase*0.4)*0.42 + 0.3, camZ);
+    var bz = camZ - 15 - Math.sin(tPhase*0.8)*1.4;
+    ballGrp.position.set(Math.sin(tPhase*1.15)*1.5, Math.cos(tPhase*0.95)*1.05 - 0.2, bz);
+    ballMesh.rotation.x += 0.012; ballMesh.rotation.y += 0.017;
+    band.rotation.z += 0.02;
+    camera.lookAt(ballGrp.position.x*0.35, ballGrp.position.y*0.35, camZ - 40);
+
+    var pa = pGeo.attributes.position.array;
+    for(var i2=0;i2<PN;i2++){
+      pa[i2*3+2] -= 0.55;
+      if(pa[i2*3+2] < camZ - 220) pa[i2*3+2] = camZ + 30;
+    }
+    pGeo.attributes.position.needsUpdate = true;
+
+    var ja = jGeo.attributes.position.array;
+    for(var k=0;k<JN;k++){
+      var s = jSeed[k];
+      s.t += 0.022;
+      if(s.t > 1) s.t = 0;
+      var spread = s.t*3.4;
+      ja[k*3]   = -(R*0.72) - spread*1.5 + s.a*spread;
+      ja[k*3+1] = (R*0.72) + spread*1.2 + s.a*spread;
+      ja[k*3+2] = s.a*spread*2.2;
+    }
+    jGeo.attributes.position.needsUpdate = true;
+    jet1.material.opacity = 0.85*(1 - clamp(Math.abs(camZ - LEAK_Z)/70,0,1));
+    crack.material.opacity = jet1.material.opacity;
+
+    for(var rr2=0; rr2<rings.length; rr2++){
+      var ring2 = rings[rr2];
+      if(ring2.position.z > camZ + 30) ring2.position.z -= rings.length*40;
+      if(ring2.position.z < camZ - 330) ring2.position.z += rings.length*40;
+      var d = Math.abs(ring2.position.z - camZ);
+      ring2.material.opacity = 0.16 + 0.5*(1-clamp(d/180,0,1));
+    }
+
+    renderer.render(scene, camera);
+  }
+  frame();
+})();
+
+/* ============================ KM RAIL ============================ */
+(function(){
+  var rail = $('#rail'), fill = $('#railFill'), head = $('#railHead'), kmEl = $('#railKm'), track = $('#railTrack');
+  if(!rail) return;
+  [0,5,10,15,20,25,30].forEach(function(km){
+    var n = document.createElement('div');
+    n.className = 'rail-node'; n.style.top = (km/30*100)+'%';
+    n.setAttribute('data-km', km);
+    n.innerHTML = '<b>'+km+'</b>';
+    track.appendChild(n);
+  });
+  var nodes = $$('.rail-node', track);
+  function upd(){
+    var max = document.body.scrollHeight - window.innerHeight;
+    var p = clamp(window.scrollY/Math.max(max,1),0,1);
+    fill.style.height = (p*100)+'%';
+    head.style.top = (p*100)+'%';
+    kmEl.textContent = (p*30).toFixed(1)+' km';
+    nodes.forEach(function(n){
+      n.classList.toggle('past', parseFloat(n.getAttribute('data-km'))/30 <= p+0.005);
+    });
+    rail.classList.toggle('on', window.scrollY > window.innerHeight*0.45);
+  }
+  window.addEventListener('scroll', upd, {passive:true});
+  window.addEventListener('resize', upd);
+  upd();
+})();
+
+/* ============================ SMART BALL 3D ============================ */
+(function(){
+  var stage = $('#ballStage'), canvas = $('#ball-canvas');
+  if(!stage || typeof THREE === 'undefined'){ if(stage) stage.style.display='none'; return; }
+  var renderer;
+  try{ renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true}); }
+  catch(err){ stage.style.display='none'; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+  camera.position.set(0, 1.2, 8.6);
+  camera.lookAt(0,0,0);
+
+  scene.add(new THREE.AmbientLight(0x3E6E8C, 1.0));
+  var d1 = new THREE.DirectionalLight(0xEAF6FF, 1.15); d1.position.set(4,6,5); scene.add(d1);
+  var d2 = new THREE.DirectionalLight(0x00E5FF, 0.85); d2.position.set(-5,-2,-3); scene.add(d2);
+  var rim = new THREE.PointLight(0x7FE9E1, 1.4, 22); rim.position.set(0,0,-5); scene.add(rim);
+
+  var grp = new THREE.Group(); scene.add(grp);
+  var titanium = new THREE.MeshStandardMaterial({color:0xC6CFD6, metalness:0.96, roughness:0.26});
+  var polymer  = new THREE.MeshStandardMaterial({color:0x0A2437, metalness:0.35, roughness:0.62});
+
+  var parts = [];
+  function addPart(mesh, dir, key){
+    mesh.userData.home = mesh.position.clone();
+    mesh.userData.dir = dir;
+    mesh.userData.key = key;
+    grp.add(mesh); parts.push(mesh); return mesh;
+  }
+
+  var top = new THREE.Mesh(new THREE.SphereGeometry(1.75, 60, 34, 0, Math.PI*2, 0, Math.PI*0.44), titanium);
+  addPart(top, new THREE.Vector3(0,1,0), 'shell');
+  var bot = new THREE.Mesh(new THREE.SphereGeometry(1.75, 60, 34, 0, Math.PI*2, Math.PI*0.56, Math.PI*0.44), titanium);
+  addPart(bot, new THREE.Vector3(0,-1,0), 'shellb');
+  var eq = new THREE.Mesh(new THREE.CylinderGeometry(1.752,1.752,0.42,60,1,true), polymer);
+  addPart(eq, new THREE.Vector3(0,0,0), 'eq');
+  var eqRing = new THREE.Mesh(new THREE.TorusGeometry(1.77,0.045,8,72), new THREE.MeshBasicMaterial({color:0x00E5FF, transparent:true, opacity:.75}));
+  eqRing.rotation.x = Math.PI/2; addPart(eqRing, new THREE.Vector3(0,0,0), 'eqr');
+
+  var core = new THREE.Mesh(new THREE.IcosahedronGeometry(1.06, 1),
+    new THREE.MeshStandardMaterial({color:0x07293E, metalness:0.5, roughness:0.5, flatShading:true}));
+  addPart(core, new THREE.Vector3(0,0,0), 'core');
+  var coreWire = new THREE.Mesh(new THREE.IcosahedronGeometry(1.08,1),
+    new THREE.MeshBasicMaterial({color:0x2E8FB8, wireframe:true, transparent:true, opacity:.4}));
+  addPart(coreWire, new THREE.Vector3(0,0,0), 'corew');
+
+  /* NEW: ESP8266 MCU */
+  var mcu = new THREE.Mesh(new THREE.BoxGeometry(0.6,0.05,0.4), new THREE.MeshStandardMaterial({color:0x111111, metalness:0.3, roughness:0.8}));
+  mcu.position.set(0, 0.1, -0.2);
+  addPart(mcu, new THREE.Vector3(0, 0.4, -1.0), 'mcu');
+
+  /* NEW: Water Sensor */
+  var water = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.2), new THREE.MeshStandardMaterial({color:0xAAAAAA, metalness:0.8, roughness:0.2}));
+  water.position.set(-0.3, -0.6, 0.2);
+  addPart(water, new THREE.Vector3(-0.8, -1.2, 0.4), 'water');
+
+  /* NEW: DHT11 */
+  var dht = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.15, 0.3), new THREE.MeshStandardMaterial({color:0x0055FF, metalness:0.1, roughness:0.9}));
+  dht.position.set(0.3, -0.1, 0.4);
+  addPart(dht, new THREE.Vector3(0.8, -0.2, 1.0), 'dht');
+
+  var imu = new THREE.Mesh(new THREE.BoxGeometry(0.58,0.2,0.58),
+    new THREE.MeshStandardMaterial({color:0x00E5FF, metalness:.4, roughness:.35, emissive:0x004E5E}));
+  imu.position.set(0.42,0.3,0.34);
+  addPart(imu, new THREE.Vector3(1.25,0.55,0.9), 'imu');
+
+  var mic = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.42,24),
+    new THREE.MeshStandardMaterial({color:0x7FE9E1, metalness:.6, roughness:.3, emissive:0x0A4A46}));
+  mic.position.set(-0.5,0.16,0.42); mic.rotation.z = Math.PI/2.4;
+  addPart(mic, new THREE.Vector3(-1.35,0.35,0.85), 'mic');
+
+  var pres = new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.34,0.14,28),
+    new THREE.MeshStandardMaterial({color:0xC6CFD6, metalness:.9, roughness:.3}));
+  pres.position.set(0.24,-0.42,-0.5); pres.rotation.x = Math.PI/2.6;
+  addPart(pres, new THREE.Vector3(0.7,-0.9,-1.15), 'pres');
+
+  var cell = new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.36,0.82,28),
+    new THREE.MeshStandardMaterial({color:0xFFB65C, metalness:.55, roughness:.4, emissive:0x3A2200}));
+  cell.position.set(-0.36,-0.38,-0.36); cell.rotation.z = Math.PI/7;
+  addPart(cell, new THREE.Vector3(-1.0,-0.85,-0.95), 'cell');
+
+  var probe = new THREE.Mesh(new THREE.TorusGeometry(0.62,0.035,8,40),
+    new THREE.MeshBasicMaterial({color:0x43E08A, transparent:true, opacity:.85}));
+  probe.rotation.y = Math.PI/3;
+  addPart(probe, new THREE.Vector3(0.2,0.1,1.25), 'probe');
+
+  var hots = {};
+  $$('.hot', stage).forEach(function(el){ hots[el.getAttribute('data-hot')] = el; });
+  var hotMap = {imu:'imu', mic:'mic', pres:'pres', cell:'cell', shell:'shell', mcu:'mcu', water:'water', dht:'dht'};
+
+  var explode = 0, explodeTarget = 0, spin = true, rotX = -0.12, rotY = 0.5, velY = 0.0025, dragging = false, lx = 0, ly = 0;
+
+  $('#explodeBtn').addEventListener('click', function(){
+    explodeTarget = explodeTarget > 0.5 ? 0 : 1;
+    this.textContent = explodeTarget > 0.5 ? 'Close the shell' : 'Open the shell';
+    this.classList.toggle('on', explodeTarget > 0.5);
+    this.setAttribute('aria-pressed', explodeTarget > 0.5 ? 'true':'false');
+  });
+  $('#spinBtn').addEventListener('click', function(){
+    spin = !spin;
+    this.textContent = spin ? 'Pause rotation' : 'Resume rotation';
+    this.classList.toggle('on', !spin);
+    this.setAttribute('aria-pressed', spin ? 'true':'false');
+  });
+
+  stage.addEventListener('pointerdown', function(e){
+    if(e.target.closest('.chip')) return;
+    dragging = true; lx = e.clientX; ly = e.clientY;
+    try{ stage.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  stage.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    var dx = e.clientX - lx, dy = e.clientY - ly;
+    rotY += dx*0.008; rotX = clamp(rotX + dy*0.006, -1.1, 1.1);
+    velY = dx*0.0012; lx = e.clientX; ly = e.clientY;
+  });
+  window.addEventListener('pointerup', function(){ dragging = false; });
+
+  function resize(){
+    var w = stage.clientWidth, h = stage.clientHeight;
+    if(!w || !h) return;
+    renderer.setSize(w,h,false);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+
+  var inView = true;
+  var bio = new IntersectionObserver(function(en){ en.forEach(function(e){ inView = e.isIntersecting; }); },{threshold:.05});
+  bio.observe(stage);
+
+  var v3 = new THREE.Vector3();
+  function frame(){
+    requestAnimationFrame(frame);
+    if(!inView) return;
+    if(renderer.domElement.clientWidth !== renderer.domElement.width/Math.min(window.devicePixelRatio||1,2)) resize();
+
+    explode = lerp(explode, explodeTarget, 0.09);
+    if(spin && !dragging && !REDUCED){ rotY += 0.0034; }
+    if(!dragging && Math.abs(velY) > 0.0001){ rotY += velY; velY *= 0.94; }
+    grp.rotation.y = rotY; grp.rotation.x = rotX;
+
+    parts.forEach(function(m){
+      var h = m.userData.home, d = m.userData.dir;
+      m.position.set(h.x + d.x*explode*1.35, h.y + d.y*explode*1.35, h.z + d.z*explode*1.35);
+    });
+    top.material.opacity = 1; 
+
+    var w = stage.clientWidth, h2 = stage.clientHeight;
+    Object.keys(hotMap).forEach(function(key){
+      var el = hots[key];
+      var mesh = parts.filter(function(m){ return m.userData.key === hotMap[key]; })[0];
+      if(!el || !mesh) return;
+      mesh.getWorldPosition(v3);
+      v3.project(camera);
+      var x = (v3.x*0.5+0.5)*w, y = (-v3.y*0.5+0.5)*h2;
+      el.style.left = x+'px'; el.style.top = (y-26)+'px';
+      el.style.opacity = (explode > 0.35 && v3.z < 1) ? clamp((explode-0.35)/0.4,0,1) : 0;
+    });
+
+    renderer.render(scene, camera);
+  }
+  resize(); frame();
+  window.addEventListener('load', resize);
+})();
+
+/* ============================ CONSUMER APP ============================ */
+(function(){
+
+  /* Logic for Direct Water Order Input */
+  var orderBtn = $('#orderWaterBtn');
+  var waterInput = $('#waterInput');
+  var orderStatus = $('#orderStatus');
+  if(orderBtn && waterInput && orderStatus) {
+      orderBtn.addEventListener('click', function() {
+          var val = waterInput.value;
+          if(val && val > 0) {
+              orderStatus.textContent = val + " L of water ordered successfully.";
+              waterInput.value = '';
+              setTimeout(function(){ orderStatus.textContent = ''; }, 3000);
+          } else {
+              orderStatus.textContent = "Please enter a valid amount.";
+              orderStatus.style.color = "var(--alert)";
+              setTimeout(function(){ orderStatus.textContent = ''; orderStatus.style.color = "var(--aqua)"; }, 3000);
+          }
+      });
+  }
+
+  /* Logic for Complaint Button */
+  var submitComplaintBtn = $('#submitComplaintBtn');
+  var complaintText = $('#complaintText');
+  var complaintStatus = $('#complaintStatus');
+  if (submitComplaintBtn && complaintStatus) {
+      submitComplaintBtn.addEventListener('click', function() {
+          if (complaintText.value.trim() === '') {
+              complaintStatus.textContent = "Please provide details first.";
+              complaintStatus.style.color = "var(--alert)";
+              setTimeout(function(){ complaintStatus.textContent = ''; }, 3000);
+          } else {
+              complaintStatus.style.color = "var(--ok)";
+              complaintStatus.textContent = "Complaint officially filed. Reference: #1094";
+              complaintText.value = '';
+              setTimeout(function(){ complaintStatus.textContent = ''; }, 4500);
+          }
+      });
+  }
+
+  var tabs = $$('.app-tabs .chip'), scrs = $$('.scr'), sbarMode = $('#sbarMode');
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){ x.classList.remove('on'); });
+      t.classList.add('on');
+      var k = t.getAttribute('data-tab');
+      scrs.forEach(function(s){ s.classList.toggle('on', s.getAttribute('data-scr')===k); });
+      if(k==='usage') drawUsage();
+    });
+  });
+
+  var sw = $('#awaySw'), card = $('#alertCard'), state = $('#awayState'), vbtn = $('#valveBtn'), vis = $('#valveVis');
+  var timer = null;
+  sw.addEventListener('click', function(){
+    var on = sw.classList.toggle('on');
+    sw.setAttribute('aria-checked', on?'true':'false');
+    sbarMode.textContent = on ? 'away' : 'home';
+    if(on){
+      state.textContent = 'On · watching the tank';
+      card.classList.remove('show');
+      vis.classList.remove('closed');
+      vbtn.textContent = 'Shut off the main valve';
+      vbtn.classList.remove('done');
+      vbtn.disabled = false;
+      clearTimeout(timer);
+      timer = setTimeout(function(){
+        if(sw.classList.contains('on')) card.classList.add('show');
+      }, REDUCED ? 300 : 2100);
+    }else{
+      state.textContent = 'Off · normal monitoring';
+      card.classList.remove('show');
+      clearTimeout(timer);
+    }
+  });
+  vbtn.addEventListener('click', function(){
+    vis.classList.add('closed');
+    vbtn.textContent = 'Main valve closed · 0.0 L/min';
+    vbtn.classList.add('done');
+    vbtn.disabled = true;
+    $('#alertText').textContent = 'Flow stopped 1.4 seconds after the tap. A plumber has been notified with the meter trace attached.';
+  });
+
+  /* tank fill on view */
+  var tio = new IntersectionObserver(function(en){
+    en.forEach(function(e){
+      if(e.isIntersecting){
+        $('#tankBar').style.width = '62%';
+        tio.unobserve(e.target);
+      }
+    });
+  },{threshold:.4});
+  if($('#tankBar')) tio.observe($('#tankBar').closest('.phone'));
+
+  function drawUsage(){
+    var c = $('#usageChart'); if(!c) return;
+    var dpr = Math.min(window.devicePixelRatio||1,2);
+    var w = c.clientWidth, h = c.clientHeight;
+    c.width = w*dpr; c.height = h*dpr;
+    var g = c.getContext('2d'); g.scale(dpr,dpr); g.clearRect(0,0,w,h);
+    var data = [520,470,610,455,498,430,427], labels=['M','T','W','T','F','S','S'];
+    var max = 700, bw = w/data.length;
+    data.forEach(function(v,i){
+      var bh = (v/max)*(h-26), x = i*bw+bw*0.22, y = h-22-bh;
+      var grad = g.createLinearGradient(0,y,0,h-22);
+      grad.addColorStop(0,'#00E5FF'); grad.addColorStop(1,'rgba(0,229,255,.18)');
+      g.fillStyle = grad;
+      var r = 4, ww = bw*0.56;
+      g.beginPath();
+      g.moveTo(x, y+r); g.quadraticCurveTo(x, y, x+r, y);
+      g.lineTo(x+ww-r, y); g.quadraticCurveTo(x+ww, y, x+ww, y+r);
+      g.lineTo(x+ww, h-22); g.lineTo(x, h-22); g.closePath(); g.fill();
+      g.fillStyle = '#8FA3B3'; g.font = '10px JetBrains Mono, monospace'; g.textAlign='center';
+      g.fillText(labels[i], x+ww/2, h-7);
+    });
+    g.strokeStyle = 'rgba(255,182,92,.7)'; g.setLineDash([4,4]); g.lineWidth = 1;
+    var avgY = h-22-(487/max)*(h-26);
+    g.beginPath(); g.moveTo(0,avgY); g.lineTo(w,avgY); g.stroke(); g.setLineDash([]);
+  }
+  window.addEventListener('resize', function(){ if($('.scr[data-scr="usage"]').classList.contains('on')) drawUsage(); });
+})();
+
+/* ============================ DASHBOARD ============================ */
+(function(){
+  /* flow volume chart (replacing complex pressure curve for clear visualization) */
+  var canvas = $('#presChart');
+  function drawFlow(progress){
+    if(!canvas) return;
+    var dpr = Math.min(window.devicePixelRatio||1,2);
+    var w = canvas.clientWidth, h = canvas.clientHeight;
+    if(!w) return;
+    canvas.width = w*dpr; canvas.height = h*dpr;
+    var g = canvas.getContext('2d');
+    g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,w,h);
+    
+    var padL = 34, padB = 22, padT = 12, padR = 10;
+    var W = w-padL-padR, H = h-padT-padB;
+
+    g.strokeStyle = 'rgba(150,196,224,.12)'; g.lineWidth = 1;
+    g.font = '10px JetBrains Mono, monospace'; g.fillStyle = '#5D7386'; g.textAlign = 'right';
+    var maxFlow = 60;
+    for(var v=0; v<=maxFlow; v+=10){
+      var y = padT + H - (v/maxFlow)*H;
+      g.beginPath(); g.moveTo(padL,y); g.lineTo(w-padR,y); g.stroke();
+      g.fillText(v, padL-7, y+3);
+    }
+    
+    g.textAlign = 'center';
+    var flows = [50, 50, 50, 50, 40, 40, 40];
+    var labels = ['0km','5km','10km','15km','20km','25km','30km'];
+    var space = (W / flows.length);
+    var barW = space * 0.55;
+
+    for(var i=0; i<flows.length; i++){
+      var x = padL + i*space + space/2;
+      g.fillStyle = '#5D7386';
+      g.fillText(labels[i], x, h-6);
+
+      if (progress > i/flows.length) {
+          var bh = (flows[i]/maxFlow)*H;
+          var by = padT + H - bh;
+          
+          // Show leak context at junction point
+          g.fillStyle = (i >= 4) ? 'rgba(255,92,92,.85)' : 'rgba(0,229,255,.85)';
+          g.fillRect(x - barW/2, by, barW, bh);
+
+          if (i===4) {
+              g.fillStyle = '#FF9A9A';
+              g.fillText('-10L Leak', x, by - 6);
+          }
+      }
+    }
+  }
+  
+  var drawn = false;
+  var pio = new IntersectionObserver(function(en){
+    en.forEach(function(e){
+      if(!e.isIntersecting || drawn) return;
+      drawn = true;
+      if(REDUCED){ drawFlow(1); return; }
+      var t0 = performance.now();
+      (function run(t){
+        var p = clamp((t-t0)/1200,0,1);
+        drawFlow(1-Math.pow(1-p,2));
+        if(p<1) requestAnimationFrame(run);
+      })(t0);
+    });
+  },{threshold:.3});
+  if(canvas) pio.observe(canvas);
+  window.addEventListener('resize', function(){ if(drawn) drawFlow(1); });
+
+  /* zones */
+  var ZONES = [
+    {z:'0–5 km', v:100.0}, {z:'5–10 km', v:100.0}, {z:'10–15 km', v:100.0},
+    {z:'15–20 km', v:80.0, flag:true}, {z:'20–25 km', v:100.0}, {z:'25–30 km', v:100.0}
+  ];
+  var zw = $('#zones');
+  if(zw){
+    ZONES.forEach(function(z){
+      var row = document.createElement('div');
+      row.className = 'zone-row' + (z.flag?' flag':'');
+      row.innerHTML = '<span class="zn">'+z.z+'</span><span class="zb"><i data-w="'+z.v+'"></i></span><span class="zv">'+z.v.toFixed(1)+'%</span>';
+      zw.appendChild(row);
+    });
+    var zio = new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if(e.isIntersecting){
+          $$('.zb i', zw).forEach(function(b,i){
+            setTimeout(function(){ b.style.width = b.getAttribute('data-w')+'%'; }, i*90);
+          });
+          zio.unobserve(e.target);
+        }
+      });
+    },{threshold:.4});
+    zio.observe(zw);
+  }
+
+  /* event log */
+  var LOG = [
+    ['08:02','ball released at junction 3 · water contact confirmed'],
+    ['08:14','pressure 3.92 bar · nominal'],
+    ['09:37','acoustic 2.1 kHz sustained · 17.4 km'],
+    ['09:37','pressure −0.41 bar over 40 m · crack confirmed'],
+    ['10:21','IMU branch at 17.4 km not present in as-built'],
+    ['10:22','tap-off flagged · zone 4 reconciliation −10.0 L/s'],
+    ['11:08','ball recovered at Margao basket · 41% cell remaining'],
+    ['11:15','repair order 4471 issued to ward crew']
+  ];
+  var logEl = $('#dashLog');
+  if(logEl){
+    var shown = 0;
+    function addLog(){
+      if(shown >= LOG.length) return;
+      var d = document.createElement('div');
+      d.innerHTML = '<b>'+LOG[shown][0]+'</b><span>'+LOG[shown][1]+'</span>';
+      logEl.appendChild(d);
+      shown++;
+      while(logEl.children.length > 8) logEl.removeChild(logEl.firstChild);
+    }
+    var lio = new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if(e.isIntersecting){
+          if(REDUCED){ while(shown<LOG.length) addLog(); }
+          else{ var iv = setInterval(function(){ addLog(); if(shown>=LOG.length) clearInterval(iv); }, 420); }
+          lio.unobserve(e.target);
+        }
+      });
+    },{threshold:.3});
+    lio.observe(logEl);
+  }
+})();
+
+/* ============================ FORM ============================ */
+(function(){
+  var f = $('#pilotForm'); if(!f) return;
+  f.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = $('#f-name').value.trim(), email = $('#f-email').value.trim();
+    var stat = $('#formStat');
+    if(!name || !email || email.indexOf('@') < 1){
+      stat.style.color = '#FF8A8A';
+      stat.textContent = 'Add a name and a valid email so we can reply.';
+      return;
+    }
+    stat.style.color = '';
+    stat.textContent = 'Brief captured. This demonstration page stores nothing — email us to continue.';
+    f.reset();
+  });
+})();
+
+window.addEventListener('scroll', onScrollNav, {passive:true});
+onScrollNav();
+})();
+</script>
+</body>
+</html>
